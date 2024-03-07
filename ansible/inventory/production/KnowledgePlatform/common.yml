@@ -1,0 +1,544 @@
+###### Release 1.14.0, 2.0.0 ########
+
+env: prod
+proto: https
+domain_name: portal.igotkarmayogi.gov.in
+portal_domain_name: portal.igotkarmayogi.gov.in
+static_domain_name: igotkarmayogi.gov.in
+ekstep_domain_name: # https://qa.ekstep.in if you're using dial service
+
+#bootstrap
+ssh_public_key_deployer: /var/lib/jenkins/secrets/deployer_ssh_key.pub
+bootstrap_user: ansible
+bootstrap_key_path: /var/lib/jenkins/secrets/id_rsa
+
+azure_public_container: 
+environment_id: 11111111   # Should be a number of 8 digit like 1000000. This should be unique per environment
+neo4j_zip: neo4j-enterprise-3.3.9-unix.tar.gz       # neo4j enterprise version.zip present in the artifacts folder
+#neo4j_home: "{{learner_user_home}}/{{neo4j_dir}}/neo4j-enterprise-3.3.9"   # Change this path to the version of neo4j you will be using
+neo4j_home: "{{learner_user_home}}/{{neo4j_dir}}/neo4j-community-3.3.9"
+neo4j_enterprise: false
+
+###########  Storage Account variables ############
+artifacts_container: 
+
+# public storage account with content conatiner.
+sunbird_public_storage_account_name: igotprod
+
+sunbird_content_azure_storage_container: igotprod  # where cntent is stored, it has to be created in pubic storage account, its valuse should be same as azure_public_container variable in kp/common.yml
+# used to store backups for or application DB's
+sunbird_management_storage_account_name: igotprod
+
+# This account need to be private to store jenkins build artifacts which will be used commonly between environments.
+#sunbird_artifact_storage_account_name: 
+
+##########################################################
+
+# Enable following if you're using kubernetes
+
+# Ip of nginx private ingress
+# Give Ip Address with which the private ingress should be created
+# For safety reason, give ip address from bottom range of cidr
+# for ex: if cidr is 11.2.1.0/24
+private_ingressgateway_ip: 10.194.181.122 #11.2.1.220
+#private_ingressgateway_ip: 
+#
+learner_service_base_url: "http://{{private_ingressgateway_ip}}/learner"  ## lp samza jobs
+cert_service_base_url: "http://{{private_ingressgateway_ip}}/cert"    ### lp samza jobs
+kp_content_service_base_url: "http://{{private_ingressgateway_ip}}/content"
+cert_reg_service_base_url: "http://{{private_ingressgateway_ip}}/certreg"
+kp_search_service_base_url: "http://{{private_ingressgateway_ip}}/search"
+kp_print_service_base_url: "http://{{private_ingressgateway_ip}}/print"
+lms_service_base_url: "http://{{private_ingressgateway_ip}}/lms"
+
+
+kubeconfig_path: /var/lib/jenkins/secrets/k8s.yaml
+dockerhub: chub.cloud.gov.in/nk8s-mission-karmyogi
+docker_registry:      #### docker hub user
+sunbird_private_storage_account_name: igotprod
+
+learningservice_ip:    ### learning vm or load balancer ip
+dialservice_ip:        ## dial service vm or loadbalancer ip
+dial_service_search_url: "http://{{dialservice_ip}}:9001/dialcode/v3/search"
+dial_service_generate_url: "http://{{dialservice_ip}}:9001/dialcode/v3/generate"
+
+cephs3_storage_container: igotprod
+cephs3_storage_endpoint: https://static.igotkarmayogi.gov.in
+
+#kp_schema_base_path: "{{proto}}://{{sunbird_public_storage_account_name}}.blob.core.windows.net/{{plugin_container_name}}/schemas/local"
+#kp_schema_base_path: https://igot.blob.core.windows.net/content/schemas/local
+kp_schema_base_path: https://static.karmayogiprod.nic.in/igotprod/content/schemas/local
+plugin_container_name: "{{cephs3_storage_container}}"
+
+
+#KafkaVersion
+kafka_version: 2.4.1
+#env: dev
+
+ingestion_kafka_topics:
+  - name: telemetry.ingestion
+    num_of_partitions: 16
+    replication_factor: 1
+  - name: events.deviceprofile
+    num_of_partitions: 4
+    replication_factor: 1
+
+ingestion_kafka_overriden_topics:
+  - name: telemetry.ingestion
+    retention_time: 259200000
+    replication_factor: 1
+    max_message_bytes: 5242880
+  - name: events.deviceprofile
+    retention_time: 172800000
+    replication_factor: 1
+
+processing_kafka_topics:
+  - name: telemetry.raw
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: telemetry.valid
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: telemetry.unique
+    num_of_partitions: 8
+    replication_factor: 1
+  - name: telemetry.duplicate
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: telemetry.ingest
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: telemetry.extractor.duplicate
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: telemetry.sink
+    num_of_partitions: 8
+    replication_factor: 1
+  - name: telemetry.with_location
+    num_of_partitions: 8
+    replication_factor: 1
+  - name: telemetry.de_normalized
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: telemetry.log
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: analytics.job_queue
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: learning.graph.events
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: pipeline_metrics
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: metrics
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: learning.graph.events.fail
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: analytics_metrics
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: learning.job.request 
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: learning.job.request.fail
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: learning.republish.job.request
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: telemetry.derived
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: telemetry.failed
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: telemetry.malformed
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: telemetry.extractor.failed
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: telemetry.indexer.failed
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: coursebatch.job.request
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: content.postpublish.request  
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: coursebatch.certificate.request
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: system.command 
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: learning.events.failed
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: auto.creation.job.request
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: auto.creation.job.request.failed
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: contentstate.invalid
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: db.query.events
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: certificate.events.failed
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: activity.agg.failed
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: issue.certificate.request
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: generate.certificate.request
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: post.certificate.process.request
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: post.certificate.process.failed
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: generate.certificate.failed
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: assessment.publish.request
+    num_of_partitions: 4
+    replication_factor: 1
+  - name: batch.enrolment.sync.request
+    num_of_partitions: 4
+    replication_factor: 1
+processing_kafka_overriden_topics:
+  - name: telemetry.raw
+    retention_time: 604800000
+    replication_factor: 1
+  - name: telemetry.valid
+    retention_time: 604800000
+    replication_factor: 1
+  - name: telemetry.unique
+    retention_time: 604800000
+    replication_factor: 1
+  - name: telemetry.duplicate
+    retention_time: 86400000
+    replication_factor: 1
+  - name: telemetry.ingest
+    retention_time: 172800000
+    replication_factor: 1
+  - name: telemetry.extractor.duplicate
+    retention_time: 172800000
+    replication_factor: 1
+  - name: telemetry.sink
+    retention_time: 259200000
+    replication_factor: 1
+  - name: telemetry.with_location
+    retention_time: 86400000
+    replication_factor: 1
+  - name: telemetry.de_normalized
+    retention_time: 86400000
+    replication_factor: 1
+  - name: telemetry.log
+    retention_time: 86400000
+    replication_factor: 1
+  - name: analytics.job_queue
+    retention_time: 86400000
+    replication_factor: 1
+  - name: learning.graph.events
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: pipeline_metrics
+    retention_time: 259200000
+    replication_factor: 1
+  - name: metrics
+    retention_time: 604800000
+    replication_factor: 1
+  - name: learning.graph.events.fail
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: analytics_metrics
+    retention_time: 86400000
+    replication_factor: 1
+  - name: learning.job.request
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: learning.job.request.fail
+    retention_time: 1296000000
+    replication_factor: 1
+  - name: learning.republish.job.request
+    retention_time: 1296000000
+    replication_factor: 1
+  - name: telemetry.derived
+    retention_time: 259200000
+    replication_factor: 1
+  - name: issue.certificate.request
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: generate.certificate.request
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: post.certificate.process.request
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: batch.enrolment.sync.request
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: system.command 
+    retention_time: 604800000
+    replication_factor: 1
+  # Error/Failed Topics
+  - name: telemetry.failed
+    retention_time: 604800000
+    replication_factor: 1
+  - name: telemetry.malformed
+    retention_time: 604800000
+    replication_factor: 1
+  - name: telemetry.extractor.failed
+    retention_time: 604800000
+    replication_factor: 1
+  - name: telemetry.indexer.failed
+    retention_time: 604800000
+    replication_factor: 1
+  - name: coursebatch.job.request
+    retention_time: 1209600000 
+    replication_factor: 1
+  - name: content.postpublish.request
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: coursebatch.certificate.request
+    retention_time: 1209600000
+    replication_factor: 
+  - name: learning.events.failed 
+    retention_time: 604800000
+    replication_factor: 1
+  - name: auto.creation.job.request
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: auto.creation.job.request.failed
+    retention_time: 1296000000
+    replication_factor: 1
+  - name: contentstate.invalid
+    retention_time: 604800000
+    replication_factor: 1
+  - name: db.query.events
+    retention_time: 604800000
+    replication_factor: 1
+  - name: certificate.events.failed
+    retention_time: 1296000000
+    replication_factor: 1
+  - name: activity.agg.failed
+    retention_time: 1296000000
+    replication_factor: 1
+  - name: post.certificate.process.failed
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: generate.certificate.failed
+    retention_time: 1209600000
+    replication_factor: 1
+  - name: assessment.publish.request
+    retention_time: 1209600000
+    replication_factor: 1
+
+### class name vars
+flink_job_names:
+  activity-aggregate-updater:
+    job_class_name: 'org.sunbird.job.aggregate.task.ActivityAggregateUpdaterStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  relation-cache-updater:
+    job_class_name: 'org.sunbird.job.relationcache.task.RelationCacheUpdaterStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  post-publish-processor:
+    job_class_name: 'org.sunbird.job.postpublish.task.PostPublishProcessorStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  questionset-publish:
+    job_class_name: 'org.sunbird.job.questionset.task.QuestionSetPublishStreamTask'
+    replica: 1
+    jobmanager_memory: 2048m
+    taskmanager_memory: 2048m
+    taskslots: 1
+    cpu_requests: 0.3
+  video-stream-generator:
+    job_class_name: 'org.sunbird.job.videostream.task.VideoStreamGeneratorStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  search-indexer:
+    job_class_name: 'org.sunbird.job.searchindexer.task.SearchIndexerStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  enrolment-reconciliation:
+    job_class_name: 'org.sunbird.job.recounciliation.task.EnrolmentReconciliationStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  asset-enrichment:
+    job_class_name: 'org.sunbird.job.assetenricment.task.AssetEnrichmentStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  audit-history-indexer:
+    job_class_name: 'org.sunbird.job.audithistory.task.AuditHistoryIndexerStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  auto-creator-v2:
+    job_class_name: 'org.sunbird.job.task.AutoCreatorV2StreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  content-auto-creator:
+    job_class_name: 'org.sunbird.job.contentautocreator.task.ContentAutoCreatorStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  audit-event-generator:
+    job_class_name: 'org.sunbird.job.auditevent.task.AuditEventGeneratorStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  metrics-data-transformer:
+    job_class_name: 'org.sunbird.job.metricstransformer.task.MetricsDataTransformerStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  collection-cert-pre-processor:
+    job_class_name: 'org.sunbird.job.collectioncert.task.CollectionCertPreProcessorTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  collection-certificate-generator:
+    job_class_name: 'org.sunbird.job.certgen.task.CertificateGeneratorStreamTask'
+    replica: 2
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 2
+    cpu_requests: 1
+  mvc-indexer:
+    job_class_name: 'org.sunbird.job.mvcindexer.task.MVCIndexerStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  content-publish:
+    job_class_name: 'org.sunbird.job.content.task.ContentPublishStreamTask'
+    replica: 1
+    jobmanager_memory: 2048m
+    taskmanager_memory: 2048m
+    taskslots: 1
+    cpu_requests: 0.3
+  qrcode-image-generator:
+    job_class_name: 'org.sunbird.job.qrimagegenerator.task.QRCodeImageGeneratorTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  program-cert-pre-processor:
+    job_class_name: 'org.sunbird.job.programcert.task.ProgramCertPreProcessorTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  program-activity-aggregate-updater:
+    job_class_name: 'org.sunbird.job.programaggregate.task.ProgramActivityAggregateUpdaterStreamTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+  karma-points-persist-processor:
+    job_class_name: 'org.sunbird.job.karmapoints.task.KarmaPointsProcessorTask'
+    replica: 1
+    jobmanager_memory: 1024m
+    taskmanager_memory: 1024m
+    taskslots: 1
+    cpu_requests: 0.3
+
+### Activity Aggregate job related vars
+activity_agg_window_shards: 50
+activity_agg_checkpointing_interval: 60000
+activity_agg_checkpointing_pause_interval: 30000
+
+activity_agg_consumer_parallelism: 1
+activity_agg_dedup_parallelism: 1
+activity_agg_parallelism: 1
+enrolment_complete_parallelism: 1
+
+#### activity_agg flink job ###
+activity_agg_batch_interval: 10
+activity_agg_batch_read_size: 1
+activity_agg_batch_write_size: 10
+activity_agg_window_shards: 5
+activity_agg_dedup_expiry: 600
+
+restart_attempts: 30
+### Collection certificate generator job related vars
+collection_certificate_generator_consumer_parallelism: 1
+collection_certificate_generator_parallelism: 4
+collection_certificate_generator_notifier_parallelism: 4
+
+#kafka_urls: 192.168.3.112:9092,192.168.3.41:9092,192.168.3.62:9092
+graphevent_kafka_url: 192.168.3.112:9092,192.168.3.41:9092,192.168.3.62:9092
+kafka_brokers: 192.168.3.112:9092,192.168.3.41:9092,192.168.3.62:9092
+zookeepers: 192.168.3.112:2181,192.168.3.41:2181,192.168.3.62:2181
+
+############Ceph Details######
+cloud_storage_type: "cephs3"
+cephs3_storage_key: "UZTE1L0EDHFGX1EW8NEQ"
+cephs3_storage_secret: "WFuuuqtc3lYKLzuxKKJVqgS1IvAOEnOqbquT3PTC"
+cephs3_storage_endpoint: "https://static.karmayogiprod.nic.in"
+cephs3_storage_container: "igotprod"
+
+#########CERT related Variables########
+
+cert_domain_url: "https://portal.igotkarmayogi.gov.in"
+cert_container_name: "e-credentials"
+
+
+
+
+

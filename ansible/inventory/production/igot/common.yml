@@ -1,0 +1,1188 @@
+############## Release-1.14.0 ##################
+
+env: prod                            #Name of the environment, e.g. dev, staging or production.
+env_name: "{{ env }}"
+domain_name: portal.igotkarmayogi.gov.in  #Domain on which the portal will be accessed. e.g. staging.{implementation-name}.org
+portal_domain_name: portal.igotkarmayogi.gov.in
+static_domain_name: igotkarmayogi.gov.in
+proto: https                        # Protocol
+
+ssh_public_key_deployer: /var/lib/jenkins/secrets/deployer_ssh_key.pub
+bootstrap_user: ansible
+bootstrap_key_path: /var/lib/jenkins/secrets/id_rsa
+
+# External service ips
+# should be accessible from core containers
+ekstep_s3_env:                          # dev or qa or prod of ekstep for plugins
+learningservice_ip: 192.168.3.87       # Load balancer IP for learning serverai.
+dialservice_ip:                         # dial service vm ip or Load balancer ip
+searchservice_ip: 192.168.3.87                       # search service Load balancer IP
+analyticsapi_ip: 192.168.3.87                        # Analytics Service Load Balancer IP
+keycloak_url: "http://192.168.3.23:8080"                        # Keycloak Load balancer IP; eg http://10.10.10.10
+sunbird_search_service_api_base_url: "http://search-service.{{namespace}}.svc.cluster.local:9000"
+
+# Sunbird Application name and framework name
+sunbird_default_channel:                # Organization channel name which portal will connect to
+sunbird_app_name:                       # By default app name will be sunbird
+
+#####4.4.1
+sb_cb_ext_container: igotprod
+#sb_cb_ext_storage_account_name: sb-cb-ext-prod
+cloud_sb_cb_ext_container: sb-cb-ext-prod
+#core_vault_sunbird_azure_storage_key : WFuuuqtc3lYKLzuxKKJVqgS1IvAOEnOqbquT3PTC  
+cloud_storage_secret : WFuuuqtc3lYKLzuxKKJVqgS1IvAOEnOqbquT3PTC
+sb_cb_ext_cloud_storage_type: cephs3
+cloud_storage_key: "{{ cephs3_storage_key }}"
+cloud_sb_cb_ext_endpoint: "{{ cephs3_storage_endpoint }}"
+
+redis.host.name: 192.168.3.126  ##redis host ip
+frac.host: http://frac-backend-service:8095/  
+FRAC_API_BASE: http://frac-backend-service:8095/
+frac_api_base: http://frac-backend-service:8095/
+azure.identity.name: sb-cb-ext
+azure.type.name: azure
+frac_dict_backend_url: https://frac-dictionary.igotkarmayogi.gov.in/
+
+
+
+# Cloud Account details
+
+sunbird_azure_public_storage_account_name: igotprod   # public storage account with content conatiner.
+sunbird_content_azure_storage_container: igotprod  # where cntent is stored, it has to be created in pubic storage account, its valuse should be same as azure_public_container variable in kp/common.yml
+sunbird_private_storage_account_name: igotprod       ## Used to store the private contents of the storage account.
+sunbird_azure_private_storage_account_name: igotprod      
+sunbird_azure_management_storage_account_name: igotprod  # used to store backups for or application DB's
+sunbird_azure_artifact_storage_account_name: igotprod    # This account need to be private to store jenkins build artifacts which will be used commonly between environments.
+artifacts_container: ''                 # Azure blob container name to save 
+
+azure_account_name:                     # Storage account name for blobs
+sunbird_swarm_manager_lb_ip:        # Swarm manager load balancer private IP. If you don't have a load swarm manager load balancer, you can use swarm manager private ip.
+
+# Blob where data analytics pushing content
+# Check same variable in DP common.yml
+dp_azure_account_name:
+
+#### Content-service ####
+environment_id: 11111111 # value as to be as Knowledgeplatfom/common.yml environment_id
+graph_passport_key: "{{core_vault_graph_passport_key}}"   
+
+# Kubernetes variables
+namespace: "{{ env }}"
+imagepullsecrets: "{{ env }}registrysecret"
+# this willl be prepended to your image
+# for example, if you give
+# dockerhub: sunbird
+# kubernetes will try to download : sunbird/player:<tag>
+# so give proper value if you're using private registry
+dockerhub: chub.cloud.gov.in/nk8s-mission-karmyogi
+
+
+kubeconfig_path: "/var/lib/jenkins/secrets/k8s.yaml"
+kibana_oauth_authenticated_email_domains_kube: '["domain.com","domain1.com"]'
+sunbird_portal_player_cdn_enabled: false
+# Ip of nginx private ingress
+# Give Ip Address with which the private ingress should be created
+# For safety reason, give ip address from bottom range of cidr
+# for ex: if cidr is 11.2.1.0/24   
+private_ingressgateway_ip: 10.194.181.122
+storage_class_name: ""
+private_ingress_custom_annotations: true
+#nginx_private_ingress_type: NodePort
+default_org_hash_id: ""
+dataexhaust_super_admin_channel: sunbird
+
+postgres:
+  db_url: "{{ groups['postgres'][0] }}"
+  db_username: analytics
+  db_name: analytics
+  db_password: "{{core_vault_dp_pgdb_password}}"
+  db_table_name: "{{env}}_consumer_channel_mapping"
+  db_port: 5432
+  db_admin_user: postgres
+  db_admin_password: "{{core_vault_postgres_password}}"
+
+
+sunbird_google_captcha_site_key: 
+google_captcha_private_key: 
+
+# Admin util keys
+#adminutil__access_keyprefix: "accessv1_key"
+#adminutil__access_keystart: 1
+#adminutil__access_keycount: 10
+
+
+######################### Optional ###################
+## Mail config
+mail_server_host: relay.nic.in
+mail_server_username: ""
+alerts_mailing_list : ""                # Comma separated mail list for Alerts; eg: user1@mail.com, user2@mail.com
+sunbird_mail_server_from_email:       # Email ID that should be as from address in mails
+sunbird_env_logo_url:                    # put public url for logo, this logo url will be used in email sending.
+
+# Certs related vars
+certs_badge_name: ""                 # Course Completion Certificate Name e.g value is "Course Completion Certificate"
+certs_badge_description: ""           # Descripton of course Completion e.g value is "Successfully completed course on Sunbird"
+certs_badge_image: ""                # Image of the certs badge e.g value is "sunbird"
+certs_badge_root_org_id: ""          # Root org ID for which the certs will be created e.g value is "0124229474659643111"
+certs_badge_issuer_name: ""          # The issuer of the certs name e.g value is "Government of karnataka"
+certs_badge_issuer_url:  ""          # Issuer organisation official URL e.g value is "https://testdomain.in"
+cert_service_cloud_storage_type: azure 
+
+# Kibana oauth authorized domains; for accessing kibana dashboard
+kibana_oauth_authenticated_email_domains:
+  - domain1
+  - domain2
+kibana_oauth_authenticated_email_ids:
+  - email1
+  - email2
+monitor_alerts_mail_from_email:         # From Address for alert mails
+sunbird_msg_sender:                     # SMS from Address; exact 6 char
+sunbird_android_app_url: ""             # Playstore url of android app; default is subird.org
+
+# NOT MANDATORY VARS
+sunbird_public_storage_account_name: "{{sunbird_azure_public_storage_account_name}}"
+keycloak_api_management_user_email: "admin@sunbird.org"
+jenkins_url:                   # Jenkins urls to be accessed from slaves; eg "http://10.20.0.12:8080/jenkins" 
+sunbird_installation_email: "admin@sunbird.org" # fallback email for badger badge creation if the user doesn't have email address.
+upstream_url: "http://static.karmayogi.nic.in/{{sunbird_azure_public_storage_account_name}}/{{sunbird_content_azure_storage_container}}" # Proxy url to get /assets/public
+
+
+############## Release-1.15.0 & 2.0.0 ##################
+sunbird_cassandra_replication_strategy: '{"class":"NetworkTopologyStrategy","datacenter1":2}' # If using cluster give this value and choose datacenter and replication factor as required '{"class":"NetworkTopologyStrategy","datacenter1":2}' if not using cluster, leave this variable commented
+
+cert_service_container_name: e-credentials                    # conatiner name for cert service to store cert templates
+cert_service_cloud_storage_type: azure                # can be updated if we are using some other blob
+
+
+### Modified for plugins - Release - 2.4.0 ###
+sunbird_ekstep_proxy_base_url: "{{proto}}://{{domain_name}}"
+upstream_url: "https://staas-bbs1.cloud.gov.in/{{sunbird_azure_public_storage_account_name}}/{{sunbird_content_azure_storage_container}}" # Proxy url to get /assets/public
+plugin_upstream_url: "{{upstream_url}}"
+azure_plugin_storage_account_name: "{{sunbird_azure_public_storage_account_name}}"
+azure_plugin_storage_account_key: "{{sunbird_public_storage_account_key}}"
+plugin_container_name: "{{sunbird_content_azure_storage_container}}"
+
+#freshDesk dummy variable
+# freshDesk_url: ""                   # Enble only if you have proper url
+freshDesk_token: ""
+
+discussionsmw_nodebb_authorization_token: "85aebe91-88cc-4287-ace2-bbe0a84d8fa6"
+authorization_token: "85aebe91-88cc-4287-ace2-bbe0a84d8fa6"
+discussionsmw_nodebb_service_url: https://portal.igotkarmayogi.gov.in/nodebb
+discussionsmw_nodebb_api_slug: /api
+nodebb_api_slug: /discussions/api
+nodebb_service_url: http://nodebb-service:4567 
+
+
+#deployment reources
+api_manager_replicacount: "5"
+api_manager_cpu_req: "1000m"
+api_manager_mem_req: "2048Mi"
+api_manager_memory_limit: "2048Mi"
+
+learner_replicacount: "5"
+learner_cpu_req: "2000m"
+learner_mem_req: "2048Mi"
+learner_java_mem_limit: "-Xmx1g"
+
+proxy_cpu_req: "1000m"
+proxy_mem_req: "1024Mi"
+
+content_replicacount: "5"
+content_cpu_req: "2000m"
+content_mem_req: "2048Mi"
+content_cpu_limit: "2000m"
+content_mem_limit: "2048Mi"
+content_java_mem_limit: "-Xmx1g"
+
+lms_cpu_req: "1000m"
+lms_replicacount: "5"
+lms_mem_req: "1024Mi"
+
+telemetry_cpu_req: "2000m"
+telemetry_mem_req: "2048Mi"
+telemetry_mem_limit: "2048Mi"
+telemetry_cpu_limit: "2000m"
+telemetry_replicacount: "5"
+
+sb_cb_ext_replicacount: 6
+sb_cb_ext_cpu_req: "2000m"
+sb_cb_ext_mem_req: 6Gi
+sb_cb_ext_cpu_limit: "2000m"
+sb_cb_ext_mem_limit: 6Gi
+
+
+frac_backend_java_mem_limit: "2500m"
+frac_backend_replicacount: "6"
+frac_backend_cpu_req: "2"
+frac_backend_mem_req: "4Gi"
+frac_backend_cpu_limit: "2"
+frac_backend_mem_limit: "4Gi"
+
+small_rate_limit_per_hour: 100000000
+medium_rate_limit_per_hour: 5000000000
+x_medium_rate_limit_per_hour: 5000000000
+large_rate_limit_per_hour: 10000000000
+x2_large_rate_limit_per_hour: 15000000000
+x_large_rate_limit_per_hour: 30000000000
+
+premium_consumer_small_rate_limit_per_hour: 1000000000
+premium_consumer_medium_rate_limit_per_hour: 10000000000
+premium_consumer_large_rate_limit_per_hour: 100000000000
+
+cephs3_storage_container: igotprod
+#cephs3_storage_endpoint: https://staas-bbs1.cloud.gov.in
+#cephs3_storage_endpoint: http://igot-contentstore.novalocal/
+#cephs3_storage_endpoint: http://10.194.49.160
+cephs3_storage_endpoint: https://static.karmayogiprod.nic.in
+cephs3_storage_key: "UZTE1L0EDHFGX1EW8NEQ"
+
+metadata2_redis_host: 192.168.3.126
+redis_host: 192.168.3.82
+
+content_port: 6379
+device_port: 6379
+user_port: 6379
+dialcode_port: 6379
+
+#########prod.yml########
+base_mount_path: /data
+var_pid_service_host: "{{auth_domain_name}}" 
+
+#Opensaber Registry
+#OPEN_SABER_USER_REGISTRY_BASE: http://open_saber_base_ip:open_saber_port # http://10.0.1.1:8005
+default_department_name: iGOT
+default_org: dopt
+default_root_org: igot
+
+#sunbird Cassandra
+#sunbird_cassandra_host: 192.168.3.178 #10.0.1.2
+sunbird_cassandra_host: 
+   - 192.168.3.200 
+   - 192.168.3.213
+   - 192.168.3.81  
+sunbird_cassandra_port: 9042 #9042
+sunbird_cassandra_username: 
+sunbird_cassandra_password: 
+
+# Cassandra configuration
+enable_password_for_cassandra: "false"  #can be true or false
+#cassandra_host: 192.168.3.178 #10.0.1.2
+cassandra_host: "192.168.3.200:9042,192.168.3.213:9042,192.168.3.81:9042"
+#  - 192.168.3.200 #10.0.1.2
+#   - 192.168.3.213
+#   - 192.168.3.81 
+
+
+content_validation_cassandra_host: "192.168.3.200,192.168.3.213,192.168.3.81"
+cassandra_port: 9042 #9042
+cassandra_username:
+cassandra_password:
+sunbird_cassandra_db_host: "192.168.3.200,192.168.3.213,192.168.3.81"
+   #- 192.168.3.200 #10.0.1.2
+   #- 192.168.3.213
+   #- 192.168.3.81 
+
+# Cassandra keyspaces
+keyspace_bodhi: bodhi
+keyspace_sunbird: sunbird
+
+# Elasticsearch configuration
+is_es_on_https: "false"    # can be true or false
+enable_password_for_elasticsearch: "true"  # can be true or false
+
+elasticsearch_host: 192.168.3.97
+#,192.168.3.235,192.168.3.76 #10.0.1.2
+elasticsearch_http_port: 9200 #9200
+elasticsearch_tcp_port: 9200 #9200
+elasticsearch_username: 
+elasticsearch_password: 
+elasticsearch_cluster_name: elasticsearch #elasticsearch
+elasticsearch_contentindex_alias_name: mlsearch_*
+elasticsearch_contentindex_type: searchresources
+kafka_authtool_elasticsearch_contentindex_alias_name: mlsearch
+elasticsearch_http_hosts_list:
+    - 192.168.3.97:9200
+    - 192.168.3.235:9200
+    - 192.168.3.76:9200
+
+# Elasticsearch indices
+elasticsearch_search_index: socialsearch_en
+elasticsearch_thread_timeline_template: threadtemplate_v1
+elasticsearch_search_type: socialsearch
+elasticsearch_search_template: socialsearchtemplate_v1
+elasticsearch_content_search_index: lexsearchall
+elasticsearch_content_search_type: searchresources
+
+# Postgresql
+postgresql_host: 192.168.3.95 #10.0.1.2
+postgresql_port: 5432 #5432
+postgresql_username_wingspan: wingspan #username
+postgresql_password_wingspan: wingspan@123 #password
+postgresql_username_keycloak: username #username
+postgresql_password_keycloak: password #password
+postgresql_wingspan_database: wingspan
+postgresql_opensaber_password: Op3n3abr #password
+postgresql_opensaber_username: opensaber #username	
+postgresql_opensaber_database: opensaber	
+postgresql_user_profile_password: Eag13Usr #password
+postgresql_user_profile_username: eagle_user #username
+postgresql_user_profile_database: eagle_user
+# Mongodb
+mongodb_authentication_database: admin
+mongodb_host: 192.168.3.26 #10.0.1.2
+mongodb_port: 27017 #27017
+mongodb_user: admin #username
+mongodb_password: admin@123 #password
+mongodb_nodebb_database: nodebb
+mongodb_nodebb_user: nodebb
+mongodb_nodebb_password: nodebb@123
+nodebb_url: "https://portal.igotkarmayogi.gov.in/nodebb"
+
+
+# Neo4j
+enable_password_for_neo4j: "true" # can be true or false
+#neo4j_host: 192.168.3.140 #10.0.1.3
+neo4j_host: 192.168.3.156
+neo4j_port: 7687 #7687
+neo4j_username: neo4j #username
+neo4j_password: neo4j #password
+
+# Kafka
+#kafka_host: 192.168.3.249 #10.0.1.4
+kafka_host: "192.168.3.112:9092,192.168.3.41:9092,192.168.3.62:9092"
+   #- 192.168.3.112
+   #- 192.168.3.41
+   #- 192.168.3.62
+
+kafka_port: 9092  #9092
+#kafka_servers_list: "{{ kafka_host }}:{{ kafka_port }}"
+kafka_servers_list: "{{ kafka_host }}"
+
+# Zookeeper details
+#zookeeper_host: 192.168.3.249 #10.0.1.4
+zookeeper_host: 
+   - 192.168.3.112
+   - 192.168.3.41
+   - 192.168.3.62
+zookeeper_port: 2181 #2181
+zookeeper_servers_list: "{{ zookeeper_host }}:{{ zookeeper_port }}"
+
+# SMTP Details
+smtp_host: smtp_host_ip
+smtp_port: smtp_port
+
+# Docker hub details
+docker_hub_url: chub.cloud.gov.in/nk8s-mission-karmyogi  #10.0.2.10:5000 or domainname
+
+# App Details
+app_server_host: 10.0.1.10 #core private IP
+
+domain_name: portal.igotkarmayogi.gov.in #domainname
+
+
+# App variables
+keycloak_host: 192.168.3.23 #10.0.1.2
+keycloak_port: 8080 #8080
+auth_domain_name: portal.igotkarmayogi.gov.in #domainname
+keycloak_domain: https://portal.igotkarmayogi.gov.in/auth #https://domainname/auth
+keycloak_realm_name: sunbird
+keycloak_client_id: portal
+keycloak_sso_realm: sunbird
+keycloak_sso_admin_user: admin
+keycloak_sso_admin_user_password: admin
+keycloak_username: admin
+keycloak_password: admin
+keycloak_new_user_def_pwd: password
+vault_rootorg_to_authdomain_and_realm_mapping: igot;https://portal.igotkarmayogi.gov.in/auth;sunbird #<<= Format
+HTTPS_HOST: https://portal.igotkarmayogi.gov.in
+PORTAL_PORT: 3008	
+keycloak_api_base: http://bulk-upload-service	
+keycloak_api_base_port: 3009
+# Swarm variables
+var_docker_deploy_node_type: manager
+
+# ENV FILES BASE DIR
+env_files_dir: /wingspan_env_files
+
+# COMPOSE FILES DIR
+compose_files_dir: /wingspan_compose_files
+
+# Config files dir
+config_files_dir: /wingspan_config_files
+
+# Secret files dir
+docker_secret_files_dir: /wingspan_docker_secret_location
+
+# Shared env file names
+ui_shared_env_file_name: ui-shared
+
+# Memory types
+memory_t: 128M
+memory_xs: 256M
+memory_s: 512M
+memory_m: 1024M
+memory_l: 2048M
+memory_xl: 4096M
+
+# TAGS
+master_tag: igot #Docker image tag name
+tags_ui_static: "{{ master_tag }}"
+tags_ui_proxies: "{{ master_tag }}"
+tags_content_service: "{{ master_tag }}"
+tags_authtool_ui_service: "{{ master_tag }}"
+tags_more_like_this_service: "{{ master_tag }}"
+tags_social_forum_service: "{{ master_tag }}"
+tags_sb_ext_service: "{{ master_tag }}"
+tags_sb_ext_authtool_service: "{{ master_tag }}"
+tags_lex_core_cassandra_service: "{{ master_tag }}"
+tags_lex_core_critical_service: "{{ master_tag }}"
+tags_lex_core_high_service: "{{ master_tag }}"
+tags_lex_core_lhub_service: "{{ master_tag }}"
+tags_lex_core_service: "{{ master_tag }}"
+tags_file_exhaust_service: "{{ master_tag }}"
+tags_bulk_upload_service: "{{ master_tag }}"
+tags_telemetry_service: "{{ master_tag }}"
+tags_antivirus_service: "{{ master_tag }}"
+tags_external_api_service: "{{ master_tag }}"
+tags_chatbot_service: "{{ master_tag }}"
+tags_monitoring_service: "{{ master_tag }}"
+tags_dbms_api_service: "{{ master_tag }}"
+tags_support_api_service: "{{ master_tag }}"
+tags_sb_telemetry_service: "{{ master_tag }}"
+tags_pid_service: "{{ master_tag }}"
+tags_notification_service: "{{ master_tag }}"
+tags_access_control_service: "{{ master_tag }}"
+tags_hierarchy_service: "{{ master_tag }}"
+tags_kafka_service: "{{ master_tag }}"
+tags_opensaber: "{{ master_tag }}"	
+tags_user_profile: "{{ master_tag }}"
+tags_sb_recommendation_service: "{{ master_tag }}"
+tags_sb_discuss_connect_service: "{{ master_tag }}"
+tags_sb_hub_service: "{{ master_tag }}"
+tags_profanity_filter_service: "{{ master_tag }}"
+tags_ui_cbp_igot: "{{ master_tag }}"
+tags_ui_mdo_igot: "{{ master_tag }}"
+tags_content_validation_service: "{{ master_tag }}"
+tags_social_share_service: "{{ master_tag }}"
+tags_sb_hub_graph_service: "{{ master_tag }}"
+tags_workflow_handler_service: "{{ master_tag }}"
+tags_scoring_engine_service: "{{ master_tag }}"
+
+# Service scale levels
+service_replicas_content_service: 1
+service_replicas_authtool_ui_service: 1
+service_replicas_ui_proxies_service: 1
+service_replicas_more_like_this_service: 1
+service_replicas_social_forum_service: 1
+service_replicas_sb_ext_service: 1
+service_replicas_sb_ext_authtool_service: 1
+service_replicas_lex_core_cassandra_service: 1
+service_replicas_lex_core_critical_service: 1
+service_replicas_lex_core_high_service: 1
+service_replicas_lex_core_lhub_service: 0
+service_replicas_lex_core_service: 1
+service_replicas_file_exhaust_service: 1
+service_replicas_common_authorization: 1
+service_replicas_bulk_upload_service: 1
+service_replicas_telemetry_service: 1
+service_replicas_antivirus_service: 1
+service_replicas_khub_migration_service: 0
+service_replicas_external_api_service: 1
+service_replicas_chatbot_service: 0
+service_replicas_monitoring_service: 0
+service_replicas_ui_static_service: 1
+service_replicas_dbms_api_service: 1
+service_replicas_support_api_service: 1
+service_replicas_sb_telemetry_service: 1
+service_replicas_pid_service: 1
+service_replicas_notification_service: 1
+service_replicas_access_control_service: 1
+service_replicas_hierarchy_service: 1
+service_replicas_kafka_service: 1
+service_replicas_opensaber_service: 1	
+service_replicas_user_profile_service: 1
+service_replicas_sb_recommendation_service: 1
+service_replicas_sb_discuss_connect_service: 1
+service_replicas_sb_hub_service: 1
+service_replicas_profanity_filter_service: 1
+service_replicas_ui_cbp_igot_service: 1
+service_replicas_ui_mdo_igot_service: 1
+service_replicas_content_validation_service: 1
+service_replicas_social_share_service: 1
+service_replicas_sb_hub_graph_service: 1
+service_replicas_workflow_handler_service: 1
+service_replicas_scoring_engine_service: 1
+
+
+# Memory reserves for each service
+service_mem_reserved_content_service: "{{ memory_m }}"
+service_mem_reserved_authtool_ui_service: "{{ memory_s }}"
+service_mem_reserved_ui_proxies_service: "{{ memory_s }}"
+service_mem_reserved_more_like_this_service: "{{ memory_xs }}"
+service_mem_reserved_social_forum_service: "{{ memory_xs }}"
+service_mem_reserved_sb_ext_service: "{{ memory_s }}"
+service_mem_reserved_sb_ext_authtool_service: "{{ memory_s }}"
+service_mem_reserved_lex_core_cassandra_service: "{{ memory_s }}"
+service_mem_reserved_lex_core_critical_service: "{{ memory_s }}"
+service_mem_reserved_lex_core_high_service: "{{ memory_s }}"
+service_mem_reserved_lex_core_lhub_service: "{{ memory_s }}"
+service_mem_reserved_lex_core_service: "{{ memory_s }}"
+service_mem_reserved_file_exhaust_service: "{{ memory_s }}"
+service_mem_reserved_common_authorization: "{{ memory_s }}"
+service_mem_reserved_bulk_upload_service: "{{ memory_s }}"
+service_mem_reserved_telemetry_service: "{{ memory_s }}"
+service_mem_reserved_antivirus_service: "{{ memory_s }}"
+service_mem_reserved_khub_migration_service: "{{ memory_s }}"
+service_mem_reserved_external_api_service: "{{ memory_s }}"
+service_mem_reserved_chatbot_service: "{{ memory_m }}"
+service_mem_reserved_monitoring_service: "{{ memory_t }}"
+service_mem_reserved_ui_static_service: "{{ memory_s }}"
+service_mem_reserved_dbms_api_service: "{{ memory_s }}"
+service_mem_reserved_support_api_service: "{{ memory_s }}"
+service_mem_reserved_sb_telemetry_service: "{{ memory_s }}"
+service_mem_reserved_pid_service: "{{ memory_s }}"
+service_mem_reserved_notification_service: "{{ memory_s }}"
+service_mem_reserved_access_control_service: "{{ memory_s }}"
+service_mem_reserved_hierarchy_service: "{{ memory_m }}"
+service_mem_reserved_kafka_service: "{{ memory_s }}"
+service_mem_reserved_opensaber_service: "{{ memory_s }}"	
+service_mem_reserved_user_profile_service: "{{ memory_s }}"
+service_mem_reserved_sb_recommendation_service: "{{ memory_s }}"
+service_mem_reserved_sb_discuss_connect_service: "{{ memory_s }}"
+service_mem_reserved_sb_hub_service: "{{ memory_s }}"
+service_mem_reserved_profanity_filter_service: "{{ memory_s }}"
+service_mem_reserved_ui_cbp_igot_service: "{{ memory_s }}"
+service_mem_reserved_ui_mdo_igot_service: "{{ memory_s }}"
+service_mem_reserved_content_validation_service: "{{ memory_s }}"
+service_mem_reserved_social_share_service: "{{ memory_s }}"
+service_mem_reserved_sb_hub_graph_service: "{{ memory_xs }}"
+service_mem_reserved_workflow_handler_service: "{{ memory_xs }}"
+service_mem_reserved_scoring_engine_service: "{{ memory_xs }}"
+
+# Memory limits
+service_mem_limit_content_service: "{{ memory_l }}"
+service_mem_limit_authtool_ui_service: "{{ memory_m }}"
+service_mem_limit_ui_proxies_service: "{{ memory_m }}"
+service_mem_limit_more_like_this_service: "{{ memory_s }}"
+service_mem_limit_social_forum_service: "{{ memory_s }}"
+service_mem_limit_sb_ext_service: "{{ memory_l }}"
+service_mem_limit_sb_ext_authtool_service: "{{ memory_l }}"
+service_mem_limit_lex_core_cassandra_service: "{{ memory_m }}"
+service_mem_limit_lex_core_critical_service: "{{ memory_m }}"
+service_mem_limit_lex_core_high_service: "{{ memory_m }}"
+service_mem_limit_lex_core_lhub_service: "{{ memory_m }}"
+service_mem_limit_lex_core_service: "{{ memory_m }}"
+service_mem_limit_file_exhaust_service: "{{ memory_m }}"
+service_mem_limit_common_authorization: "{{ memory_m }}"
+service_mem_limit_bulk_upload_service: "{{ memory_m }}"
+service_mem_limit_telemetry_service: "{{ memory_m }}"
+service_mem_limit_antivirus_service: "{{ memory_l }}"
+service_mem_limit_khub_migration_service: "{{ memory_m }}"
+service_mem_limit_external_api_service: "{{ memory_m }}"
+service_mem_limit_chatbot_service: "{{ memory_xl }}"
+service_mem_limit_monitoring_service: "{{ memory_xs }}"
+service_mem_limit_ui_static_service: "{{ memory_m }}"
+service_mem_limit_dbms_api_service: "{{ memory_m }}"
+service_mem_limit_support_api_service: "{{ memory_s }}"
+service_mem_limit_sb_telemetry_service: "{{ memory_m }}"
+service_mem_limit_pid_service: "{{ memory_s }}"
+service_mem_limit_notification_service: "{{ memory_s }}"
+service_mem_limit_access_control_service: "{{ memory_s }}"
+service_mem_limit_hierarchy_service: "{{ memory_l }}"
+service_mem_limit_kafka_service: "{{ memory_m }}"
+service_mem_limit_opensaber_service: "{{ memory_m }}"	
+service_mem_limit_user_profile_service: "{{ memory_m }}"
+service_mem_limit_sb_recommendation_service: "{{ memory_m }}"
+service_mem_limit_sb_discuss_connect_service: "{{ memory_m }}"
+service_mem_limit_sb_hub_service: "{{ memory_m }}"
+service_mem_limit_profanity_filter_service: "{{ memory_m }}"
+service_mem_limit_ui_cbp_igot_service: "{{ memory_m }}"
+service_mem_limit_ui_mdo_igot_service: "{{ memory_m }}"
+service_mem_limit_content_validation_service: "{{ memory_m }}"
+service_mem_limit_social_share_service: "{{ memory_m }}"
+service_mem_limit_sb_hub_graph_service: "{{ memory_m }}"
+service_mem_limit_workflow_handler_service: "{{ memory_m }}"
+service_mem_limit_scoring_engine_service: "{{ memory_m }}"
+
+# Force reload for app variables
+force_reload_content_service: true
+force_reload_authtool_ui_service: true
+force_reload_ui_proxies_service: true
+force_reload_more_like_this_service: true
+force_reload_social_forum_service: true
+force_reload_sb_ext_service: true
+force_reload_sb_ext_authtool_service: true
+force_reload_lex_core_cassandra_service: true
+force_reload_lex_core_critical_service: true
+force_reload_lex_core_high_service: true
+force_reload_lex_core_lhub_service: true
+force_reload_lex_core_service: true
+force_reload_lex_health_core_service: true
+force_reload_lex_health_core_critical_service: true
+force_reload_file_exhaust_service: true
+force_reload_common_authorization: true
+force_reload_bulk_upload_service: true
+force_reload_telemetry_service: true
+force_reload_antivirus_service: true
+force_reload_khub_migration_service: true
+force_reload_external_api_service: true
+force_reload_chatbot_service: true
+force_reload_monitoring_service: true
+force_reload_ui_static_service: true
+force_reload_dbms_api_service: true
+force_reload_support_api_service: true
+force_reload_sb_telemetry_service: true
+force_reload_pid_service: false
+force_reload_notification_service: true
+force_reload_access_control_service: false
+force_reload_hierarchy_service: true
+force_reload_kafka_service: false
+force_reload_opensaber_service: true	
+force_reload_user_profile_service: true	
+force_reload_sb_recommendation_service: true
+force_reload_sb_discuss_connect_service: true
+force_reload_sb_hub_service: true
+force_reload_profanity_filter_service: true
+force_reload_ui_cbp_igot_service: true
+force_reload_ui_mdo_igot_service: true
+force_reload_content_validation_service: true
+force_reload_social_share_service: true
+force_reload_sb_hub_graph_service: true
+force_reload_workflow_handler_service: true
+force_reload_scoring_engine_service: true
+
+publish_ports: false
+
+# External application details
+lex_microsoft_client_id: client_id
+lex_microsoft_client_secret: client_secret
+
+### Service Level configurations ###
+
+# Mount paths
+host_content_directory_path: /mydata/content-directory
+host_bulk_upload_path: /mydata/bulk_upload
+# Logs
+sb_ext_logs_path: /mydata/logs/sb-ext
+ui_proxies_logs_path: /mydata/logs/ui-proxies
+bulk_upload_logs_path: /mydata/logs/bulk_upload_api
+
+# Common for multiple services
+var_common_iap_base: lex-iap.infosysapps.com
+var_common_root_org: igot
+var_common_org: dopt
+
+# For dbms api
+# D for Dev, S for staging, L for Live
+var_dbms_api_oracle_prefix_character: WS
+
+# For lex core service
+# true - real-time progress is enabled, false real-time progress is not enabled
+var_lex_core_enable_realtime_progress: true
+var_lex_health_core_enable_realtime_progress: true
+# learning hub url, test/live url depending on the environment
+var_lex_core_learning_hub_url: https://itgatewaytst.infosys.com/extapilex/api/Learning
+var_lex_health_core_learning_hub_url: https://itgatewaytst.infosys.com/extapilex/api/Learning
+var_lex_core_learning_hub_certification_url: https://itgatewaytst.infosys.com/extapicertification/api/Certification
+var_lex_health_core_learning_hub_certification_url: https://itgatewaytst.infosys.com/extapicertification/api/Certification
+var_lex_core_postgres_db_name: wingspan
+var_lex_health_core_postgres_db_name: wingspan
+var_lex_core_enable_management_endpoints: "true"
+var_lex_health_core_enable_management_endpoints: "true"
+
+# For UI-shared variables
+var_ui_shared_la_host: http://ip:port #http://10.0.1.111:9300
+var_ui_shared_ilp_fp_host: http://ip
+
+# For content service
+var_content_service_streaming_enabled_value: 1 # Make it 1 on all instances for now
+var_content_service_load_balancer_enabled_value: 0 # Make it 0 in all instances for now
+var_content_service_live_api_proxies_enabled_value: 0 # Should be 1 on Live
+var_content_service_stats_enabled_value: 0 # Should be one on Dev
+var_content_service_should_antivirus_be_enabled: "true" # Make it true whereever antivirus is running
+var_content_service_public_content_enabled_value: 0 # Should be 1 in infytq(Dev and live)
+var_content_service_send_email_to_support: "false" 
+var_content_service_environment_name: "Environment name" # Required in include in the emails
+var_content_service_support_mail_id: ""
+var_content_service_users_keyspace: sunbird
+var_content_service_logs_index_name_prefix: logs_nginx
+var_content_service_logs_type_name: nginx_logs
+var_content_service_logs_server_host: ip
+var_content_service_logs_server_port: port
+var_content_service_stats_db_name: stats
+var_content_service_stats_collection_name: stats
+
+### For multi-tenancy in S3 upload
+var_content_service_live_content_buckets : "root_org:main_bucket"
+var_content_service_live_image_buckets : "root_org:sb-images-main_bucket"
+var_content_service_pre_publish_content_buckets : "root_org:sb-pre-publish_bucket"
+var_content_service_pre_publish_image_buckets : "root_org:sb-images-pre-publish_bucket"
+var_content_service_downloads_buckets : "root_org:sb-download_bucket"
+var_content_service_content_cdn : "root_org:main_cdn" #root_org:domain_name
+var_content_service_images_cdn : "root_org:images_cdn" #root_org:image_cdn_URL
+
+
+# For sb-ext service
+var_sb_ext_service_enable_access_control: "true"
+
+# For access control service
+var_access_control_service_enable_access_control: "true"
+
+# For sb-ext authtool service
+var_sb_ext_auth_kafka_offset_reset_config: latest
+
+# For monitoring service
+var_monitoring_service_cc_list: ""
+
+# S3 bucket config
+var_content_service_main_bucket: main_bucket
+var_content_service_pre_publish_bucket: sb-pre-publish_bucket
+var_content_service_transcoding_bucket: sb-transcoding_bucket
+var_content_service_download_bucket: sb-download_bucket
+var_content_service_images_bucket: sb-images-main_bucket
+var_content_service_images_pre_publish_bucket: sb-images-pre-publish_bucket
+var_content_service_keys_bucket: sb-keys_bucket
+
+# CDN to server images
+var_images_cdn_name: images_cdn
+var_content_service_default_images_org: root_org
+
+# Transcoding Server Config
+var_content_service_transcoding_server_ip: transcoding_ip
+var_content_service_transcoding_server_port : transcoding_port
+
+# For telemetry service
+#var_telemetry_kafka_topic: telemetry_ingest_topic
+var_telemetry_kafka_topic: prod.telemetry.ingest
+
+# For pid service
+var_pid_service_pguser: pid
+# pghost be different for pid service, across the instances
+var_pid_service_pghost: 192.168.3.95
+var_pid_service_password: P1dU3ser
+var_pid_service_pgdatabase: pid
+var_pid_service_pgport: 5432
+
+# For kafka service
+var_kafka_service_kafka_offset_reset_config: latest
+
+
+#registrysecret
+imagepullsecrets: prodregistrysecret
+
+#namespace
+namespace: prod
+
+#Kubeconfig
+kubeconfig_path: /var/lib/jenkins/secrets/k8s.yaml
+
+profanity_service_host: http://192.168.3.178:4001
+
+discussion_hub_api_base: http://nodebb-service:4567/discussions
+discussion_hub_default_password: no@bbsun123$
+# key generated from nodebb admin portal
+discussion_hub_write_api_key: 85aebe91-88cc-4287-ace2-bbe0a84d8fa6
+discussion_hub_write_api_uid: 1
+discussion_category_list: cid[]=2
+
+mysql_host: 192.168.3.68
+#mysql_username: root
+mysql_username: root
+#mysql_password: igotsql@123
+mysql_password: Nicigot@1234
+
+frac_dict_url: https://frac-dictionary.igotkarmayogi.gov.in
+frac_role_verification: http://learner-service:9000/v1/user/read/
+cloud_provider: cephs3
+
+learningservice_ip: 192.168.3.87
+
+react_app_frac_api_url: frac.igotkarmayogi.gov.in/fracapis
+react_app_frac_keycloak_url: portal.igotkarmayogi.gov.in/auth
+react_app_frac_proxy_url:  portal.igotkarmayogi.gov.in
+react_app_frac_socket_url: frac.igotkarmayogi.gov.in
+react_app_frac_collab_node_url: frac.igotkarmayogi.gov.in/fraccollab
+react_app_frac_user_api_key: "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI5a04xTW1TcGVuVTAyam8zVHg1U2p0amhTOFVXeGVSUiJ9.LWAgFust4e0wntxqY8_MQjf5WQ9RSD6Hg45jX_NoCXY"
+
+bearer_token: "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI5a04xTW1TcGVuVTAyam8zVHg1U2p0amhTOFVXeGVSUiJ9.LWAgFust4e0wntxqY8_MQjf5WQ9RSD6Hg45jX_NoCXY"
+
+
+## kubernetes resources
+opensaber_cpu_req: "1000m"
+opensaber_mem_req: "2048Mi"
+opensaber_replicacount: "3"
+
+opensaber_cpu_limit: "1000m"
+opensaber_mem_limit: "2048Mi"
+
+lms_cpu_req: "1000m"
+lms_mem_req: "1024Mi"
+lms_replicacount: "3"
+
+ui_proxy_cpu_req: "8000m"
+ui_proxy_cpu_limit: "8000m"
+ui_proxy_mem_req: "8192Mi"
+ui_proxy_mem_limit: "8192Mi"
+ui_proxy_replicacount: "3"
+ui_proxy_java_mem_limit: "-Xmx1g"
+
+#########
+frac_service_cloud_storage_type: cephs3 
+
+cbp_portal_url: cbp.igotkarmayogi.gov.in
+
+ui_proxy_cors_environment: prod
+##################################
+
+KEYCLOAK_HELPER_SERVICE_CLIENT_ID: admin 
+KEYCLOAK_HELPER_SERVICE_CLIENT_SECRET: MdiDn@342$
+X_CHANNEL_ID: 0132245461338112000
+
+kc_new_user_default_pwd: Us3r@12kC
+iap_client_secret: qWEH1rbrFmDd3V6D
+
+react_app_api_url: https://frac.igotkarmayogi.gov.in/api
+
+
+
+#WAT Variables
+wat_database: wat_sourcing
+wat_ip_address: 0.0.0.0
+igot_organisation: igot-karmayogi
+igot_framework: igot
+igot_karmayoggiazurebucket: assets/public
+igot_azurebucket: content-store
+igot_azureoldbuket: igot
+igot_karmayoggirules: PUBLIC
+igot_cbprules: CONTENT_CREATOR,CONTENT_REVIEWER,CONTENT_PUBLISHER,EDITOR
+igot_cbcrules: CBC_ADMIN,CBC_MEMBER
+igot_mdorules: MDO_ADMIN,WAT_MEMBER,MDO_LEADER
+igot_spvrules: SPV_ADMIN
+send_notification_token: false
+
+
+wat_mysql_host: 
+wat_mysql_username: 
+wat_mysql_password: 
+
+#VEGA Service
+vega_api_url:
+vega_sandbox_url:
+vega_router_url:
+vega_compiler_url:
+vega_git_access_token:
+vega_model_home:
+vega_git_branch:
+vega_git_username:
+vega_git_password:
+
+#UI-STATIC Variables
+
+igot_portal_name: https://portal.igotkarmayogi.gov.in 
+igot_portal_env: prod
+
+igot_channelid: 
+igot_azurehost: https://portal.igotkarmayogi.gov.in
+igot_azureoldhost: https://staas-bbs1.cloud.gov.in
+karmayogi_portal_url: portal.igotkarmayogi.gov.in
+mdo_portal_url: mdo.igotkarmayogi.gov.in 
+spv_portal_url: spv.igotkarmayogi.gov.in
+cbp_domain_name: cbp.igotkarmayogi.gov.in
+cbc_portal_url:  cbc.igotkarmayogi.gov.in
+###########single-image-backen-URL-conf-for stage##################
+react_app_wat_api_url:
+react_app_pmdash_api_url:
+react_app_vega_api_url:
+react_app_vega_sandbox_url:
+react_app_vega_router_url:
+react_app_vega_compiler_url:
+react_app_git_access_token:
+################################
+
+frac_notification_url: https://portal.igotkarmayogi.gov.in/api/notification/v1/notification/send/sync
+frac_auth_api_key: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI5a04xTW1TcGVuVTAyam8zVHg1U2p0amhTOFVXeGVSUiJ9.LWAgFust4e0wntxqY8_MQjf5WQ9RSD6Hg45jX_NoCXY
+
+
+#########################sb-cb-ext-variables######
+pyeval_server_ip: 10.177.62.154
+pyeval_server_port: 9080
+
+iap_server_ip: 10.177.62.154
+iap_server_port: 8040
+log_access_key: lex_password
+#########################################
+
+#######vega-console#######
+bot_server_ip: 
+bezkoder_app_jwtsecret: 
+################
+######pm-analytics####
+
+#esindexer_secondary_service_host_name: 
+#esindexer_ternary_host: 
+esindexer_secondary_host_port: 9200
+##############################
+java_api_base_ip: 10.177.157.30
+java_api_base_port: 5825
+mysql_wat_be_port: 3306
+
+#neo4j_url: 192.168.3.140 
+neo4j_url: 192.168.3.156
+kafka_ip:
+   - 192.168.3.112
+   - 192.168.3.41
+   - 192.168.3.62
+ 
+
+##############
+frac_url: frac.igotkarmayogi.gov.in
+react_app_pmdash_prototype_url: pm.igotkarmayogi.gov.in/prototype 
+
+app_collab_env: prod
+app_collab_name: FRAC-Collab-Editor
+app_collab_port: 8080
+app_collab_mongo_db: frac
+app_collab_mongo_host: 192.168.3.138
+app_collab_mongo_port: 27017
+app_collab_mongo_user: frac
+app_collab_mongo_pwd: frac123 
+app_collab_keycloak_url: portal.igotkarmayogi.gov.in/auth
+igot_dashboard_api_url: https://dashboard.igotkarmayogi.gov.in/api
+igot_pm_dashboard_api_url: https://pm.igotkarmayogi.gov.in/
+
+#######Frac Dictionary####
+app_gatsby_node_port: 3040
+app_gatsby_node_environment: production
+app_gatsby_graphql: http://192.168.3.97:9200/frac-dictionary/_search
+gatsby_access_id: UZTE1L0EDHFGX1EW8NEQ
+gatsby_access_key: WFuuuqtc3lYKLzuxKKJVqgS1IvAOEnOqbquT3PTC
+gatsby_meta_siteurl: https://frac-dictionary.igotkarmayogi.gov.in/
+gatsby_meta_image : static/3f1f47940b4294a9aa64a3c1e010a451/7cf65/dictionary_banner_1200px.jpg
+gatsby_elastic :  http://192.168.3.97:9200
+gatsby_elastic_index : frac-dictionary
+gatsby_s3_bucket: igotprod
+gatsby_s3_hostname : portal.igotkarmayogi.gov.in/content-store
+gatsby_site_map : https://frac-dictionary.igotkarmayogi.gov.in/sitemap.xml
+app_gatsby_access_id: UZTE1L0EDHFGX1EW8NEQ
+app_gatsby_access_key: WFuuuqtc3lYKLzuxKKJVqgS1IvAOEnOqbquT3PTC
+gatsby_distribution_id:  
+gatsby_apollo_client: https://frac-dictionary.igotkarmayogi.gov.in/graphql
+gatsby_meta_domain: https://frac-dictionary.igotkarmayogi.gov.in/
+app_gatsby_bucket_push: s3cmd  put -r  public s3://igotprod/igot-frac-dictionary/
+gatsby_bucket_push: s3cmd  put -r  public s3://igotprod/igot-frac-dictionary/
+
+###
+content_validation_kafka_servers_list: "{{ kafka_host }}:{{ kafka_port }}"
+
+
+
+
+#######################
+
+##sb-cb-ext-service
+send-notification: true
+scheduler-time-gap: 1440
+scheduler-run-day: 4
+scheduler-run-time: 15
+
+### rating.event kafka topic for sb-cb-ext
+rating_event_topic: prod.rating.event
+
+### kp_redis_ip for pm analytics
+kp_redis_ip: 192.168.3.126
+
+### For pm analytics
+esindexer_secondary_service_host_name: 192.168.3.97
+#,192.168.3.235,192.168.3.76
+
+esindexer_ternary_host: 192.168.3.97
+#,192.168.3.235,192.168.3.76
+
+redis_port: 6379
+
+druid_host : 192.168.3.21
+
+druid_port : 8888
+
+
+#########SB-CB-EXT
+igot_cb_ext_mailsender: mission.karmayogi@gov.in
+
+##############Onbaord #####sbcb-ext
+igot_cb_ext_mailsender:  mission.karmayogi@gov.in
+preapproved_domain: gov.in,nic.in,ias.nic.in,incometax.gov.in,cag.gov.in,delhipolice.gov.in,mea.gov.in,tribal.nic.in,consumeraffairs.nic.in,doj.gov.in,dof.gov.in,sportsauthorityofindia.gov.in,dea-ies.gov.in,doe-prcca.gov.in,cbdt-prcca.gov.in,dol.gov.in,yojana.nic.in,udyog.nic.in,finance.nic.in,ias.nic.in,ifs.nic.in,punjabmail.gov.in,consumeraffairs.nic.in,moes.nic.in,bsf.nic.in,census.gov.in,mhrd.nic.in,doner.nic.in,cvc.nic.in,mospi.nic.in,mord.nic.in,dopt.nic.in,labour.nic.in,mohfw.nic.in,mocf.nic.in,power.nic.in,cabsec.nic.in,moef.nic.in,mud.nic.in,mhupa.nic.in,ntro.nic.in,moship.nic.in,nhrc.nic.in,mp.gov.in,punjab.gov.in,digitalindia.gov.in,ips.gov.in,assam.gov.in,kerala.gov.in,ias.gov.in,rajasthan.gov.in,bsf.nic.in,cisf.gov.in,crpf.gov.in,itbp.gov.in,ssb.gov.in,ord.gov.in,meity.gov.in,ka.gov.in,fsi.gov.in,dghindia.gov.in,cca.gov.in,uidai.gov.in,nielit.gov.in,sameer.gov.in,cmet.gov.in,scl.gov.in,bisag.gujarat.gov.in,csc.gov.in,icar.gov.in,hry.gov.in,hub.nic.in,yopmail.com,nth.gov.in,mcf.gov.in,zsi.gov.in,isro.gov.in,dcpw.gov.in,iirs.gov.in,ibm.gov.in,indiancoastguard.nic.in,istrac.gov.in,indiapost.gov.in,bprd.nic.in,uk.gov.in,navy.gov.in,gescom.karnataka.gov.in,gmch.gov.in,ipirti.gov.in,jk.gov.in,wfglobal.org,icfre.gov.in,ignfa.gov.in,nair.railnet.gov.in,up.nic.in,npcindia.gov.in,bsnl.co.in,cg.gov.in,govcontractor.in,delhi.gov.in,iie.gov.in,chd.nic.in,vssc.gov.in,gem.gov.in,cnkonline.in,imd.gov.in,ntpc.co.in,icfre.org,tripura.gov.in,prasarbharati.gov.in,shar.gov.in,incometax.gov.in,tn.gov.in,cbi.gov.in,ignfa.gov.in,ngoggn.onmicrosoft.com,kvs.gov.in,meghalaya.gov.in,epfindia.gov.in,iimc.gov.in,bol.net.in,tcil.net.in,itiltd.co.in,cdot.in,cbwe.nic.in,bis.gov.in,ppac.gov.in,ddpmod.gov.in,csdindia.gov.in,mospi.gov.in,lhmc-hosp.gov.in,vmmc-sjh.nic.in,fssai.gov.in,goaelectricity.gov.in,ap.gov.in,dgfasli.nic.in,icg.gov.in,jkpolice.gov.in,karmayogi.in,barc.gov.in,goapolice.gov.in,stqc.gov.in,mha.gov.in,ukmrc.org,desw.gov.in,dcmsme.gov.in,bro.gov.in,spmguttarakhand.uk.gov.in,semt.gov.in,nlcindia.in,dgt.gov.in,esic.nic.in,fci.gov.in,navodaya.nic.in,irieen.railnet.gov.in,ursc.gov.in,nitrd.nic.in,ncvet.gov.in,sansad.nic.in,nfc.gov.in,cci.gov.in,iwai.gov.in,assamrifles.gov.in,coalindia.in,aij.gov.in,censusindia.gov.in,bangla.gov.in,nadt.gov.in,stpi.in,cdsco.nic.in,aiims.gov.in,iiserpune.ac.in,dda.gov.in,dahd.nic.in,iifm.ac.in,dbt.nic.in,cghs.nic.in,icmr.gov.in,nmmc.gov.in,maharashtra.gov.in,mah.gov.in,hry.nic.in,gujarat.gov.in,niftem.ac.in,islrtc.nic.in,cwprs.gov.in,krcl.co.in,gsi.gov.in,negp.gov.in,mygov.in,csircmc.res.in,semt.maharashtra.gov.in,rgcb.res.in,nii.ac.in,nipgr.ac.in,thsti.res.in,rcb.res.in,nbrc.ac.in,nabi.res.in,ciab.res.in,ils.res.in,ibsd.nic.in,nibmg.ac.in,nccs.res.in,niab.org.in,cdfd.org.in,instem.res.in,nclt.gov.in,manipur.gov.in,manipur.nic.in,cbn.nic.in,nie.gov.in,wii.gov.in,ftii.ac.in,deity.gov.in,bsi.gov.in,nss.gov.in,powergrid.in,iip.res.in,pib.gov.in,mca.gov.in,gbpihed.nic.in,iricen.railnet.gov.in,assam.gov.in,mah.gov.in,neepco.co.in,ism.gov.in,niti.gov.in,eil.co.in,sail.in,nifm.ac.in,pfcindia.com,ireda.in,ecil.co.in,gebmail.com,pgvcl.com,mizoram.gov.in,sfio.nic.in,nib.gov.in,dae.gov.in,domaincwprs.gov.in,ncmrwf.gov.in,nccr.gov.in,cmlre.gov.in,incois.gov.in,ncess.gov.in,ncpor.res.in,tropmet.res.in,niot.res.in,Ofb.gov.in,aai.aero,nmcg.nic.in,ncrtc.in,ampri.res.in,cbri.res.in,ccmb.res.in,cdri.res.in,cecri.res.in,ceeri.res.in,cftri.res.in,cgcri.res.in,cimap.res.in,cimfr.res.in,clri.res.in,cmeri.res.in,csio.res.in,csmcri.res.in,csircmc.res.in,csir4pi.in,csirhrdg.res.in,igib.res.in,ihbt.res.in,iicb.res.in,iict.res.in,iiim.res.in,iip.res.in,iitrindia.org,immt.res.in,imtech.res.in,nal.res.in,nbri.res.in,ncl.res.in,neeri.res.in,neist.res.in,ngri.res.in,nistads.res.in,niscair.res.in,niscpr.res.in,niist.res.in,nio.org,nmlindia.org,nplindia.org,serc.res.in,urdip.res.in,up.gov.in,tariffauthority.gov.in,kolkataporttrust.gov.in,kopt.in,jnport.gov.in,chennaiport.gov.in,cochinport.gov.in,kandlaport.gov.in,paradipport.gov.in,nmpt.gov.in,dci.gov.in,epl.gov.in,deendayalport.gov.in,iiitn.ac.in,nihfw.org,bankofindia.co.in,orientalinsurance.co.in,eximbankindia.in,nhb.org.in,pnb.co.in,bankofbaroda.com,licindia.com,nfra.gov.in,mptgoa.gov.in,vpt.shipping.gov.in,amd.gov.in,britatom.gov.in,barc.gov.in,dcsem.gov.in,dpsdae.gov.in,dae.gov.in,brd.hwb.gov.in,man.hwb.gov.in,igcar.gov.in,nfc.gov.in,rrcat.gov.in,vecc.gov.in,mum.hwb.gov.in,kot.hwb.gov.in,rb.nic.in,cdac.in,hwb.gov.in,nise.res.in, cochinshipyard.in,seci.co.in,ctuap.ac.in,dmrc.org,sci.co.in,rec.in,getcogujarat.com,oilindia.in,mahabank.co.in,investindia.org.in,hpcl.in,mahapwd.gov.in,maharashtra.gov.in,nitc.ac.in,nsg.gov.in,aranya.gov.in,hmtlimited.com,hmtmachinetools.com,svpnpa.gov.in,fpahmtlimited.com,hmti.co.in,rajasthan.gov.in,celindia.co.in,aerb.gov.in,nhsrc.org,ircon.org,hindustancopper.com,tribal.gov.in,concorindia.com,nhsrcindia.org,nrdc.in,dgms.gov.in,alimco.in,arn.gov.in,censusindia.gov.in,eauth.in,nfdcindia.com,mcrhrdi.gov.in,dgms.com,cpcl.co.in,kvic.gov.in,balmerlawrie.com,aera.gov.in,iip-in.com,odisha.gov.in,jnarddc.gov.in,cgg.gov.in,sbi.co.in,gembuyer.in,mrsac.gov.in,sidbi.in,mmmocl.co.in,vvgnli.gov.in,mecl.gov.in,mcgm.gov.in,natmo.gov.in,nalcoindia.co.in,esic.gov.in,yashada.org,surveyofindia.gov.in,cht.gov.in,bharatpetroleum.in,tdb.gov.in,tal.hwb.gov.in,smcshah.in,ncbindia.com,gcnep.gov.in,gail.co.in,mahapolice.gov.in,cris.org.in,bcplindia.co.in,iigm.res.in,assamtourism.gov.in,bcplindia.co.in,indianoil.in,pngrb.gov.in,ongc.co.in,nrl.co.in,cht.gov.in,ppac.gov.in,aripune.org,cimfr.nic.in,beeindia.gov.in
+user_reg_domain_name: portal.igotkarmayogi.gov.in
+reg_orgid: 0133782666818437120
+#user.registration.preApproved.domain: gov.in,nic.in,ias.nic.in,incometax.gov.in,cag.gov.in,delhipolice.gov.in,mea.gov.in,tribal.nic.in,consumeraffairs.nic.in,doj.gov.in,dof.gov.in,sportsauthorityofindia.gov.in,dea-ies.gov.in,doe-prcca.gov.in,cbdt-prcca.gov.in,dol.gov.in,yojana.nic.in,udyog.nic.in,finance.nic.in,ias.nic.in,ifs.nic.in,punjabmail.gov.in,consumeraffairs.nic.in,moes.nic.in,bsf.nic.in,census.gov.in,mhrd.nic.in,doner.nic.in,cvc.nic.in,mospi.nic.in,mord.nic.in,dopt.nic.in,labour.nic.in,mohfw.nic.in,mocf.nic.in,power.nic.in,cabsec.nic.in,moef.nic.in,mud.nic.in,mhupa.nic.in,ntro.nic.in,moship.nic.in,nhrc.nic.in,mp.gov.in,punjab.gov.in,ips.gov.in,digitalindia.gov.in,assam.gov.in,kerala.gov.in,ias.gov.in,rajasthan.gov.in,bsf.nic.in,cisf.gov.in,crpf.gov.in,itbp.gov.in,ssb.gov.in,ord.gov.in,meity.gov.in,ka.gov.in,fsi.gov.in,dghindia.gov.in,cca.gov.in,uidai.gov.in,nielit.gov.in,sameer.gov.in,cmet.gov.in,scl.gov.in,bisag.gujarat.gov.in,csc.gov.in,icar.gov.in,hry.gov.in,hub.nic.in,nth.gov.in,mcf.gov.in,zsi.gov.in,dcmsme.gov.in,icmr.gov.in,isro.gov.in,dcpw.gov.in,iirs.gov.in,ibm.gov.in,indiancoastguard.nic.in,istrac.gov.in,indiapost.gov.in,bprd.nic.in,uk.gov.in,navy.gov.in,gescom.karnataka.gov.in,gmch.gov.in,ipirti.gov.in,jk.gov.in,wfglobal.org,icfre.gov.in,ignfa.gov.in,nair.railnet.gov.in,up.nic.in,npcindia.gov.in,bsnl.co.in,cg.gov.in
+#user.registration.domain.name: https://igotkarmayogi.gov.in
+#user.registration.domain: gmail.com
+#user.registration.dept.exclude.list:
+#user.registration.custodian.orgId: 0133782666818437120
+
+###Karmayogi portal name of the environment, without protocol.
+KARMAYOGI_PORTAL_HOST: https://portal.igotkarmayogi.gov.in
+
+#Need to update the SESSION TTL to 24 hours.
+KEYCLOAK_SESSION_TTL: "86400000"
+
+############
+igot_recaptchakey: "6LfY0l0gAAAAAAgmOgNn-VEW5jwu_-AyXTTH8gq4"
+sb.service.url: http://learner-service:9000/
+
+###
+#igot_content_bucket: "content-store"
+#igot_certimage_bucket: "content-store"
+igot_content_bucket: "assets/public"
+igot_certimage_bucket: "assets/public"
+
+########Frac-backen######
+###get after eycloak deployment using lms client
+adminutil_refresh_token_public_key_kid: "6WRoZwBe4ISE5sidZV9any56WNjwrY4yiOO-3P-ncp8"
+
+
+core_vault_sunbird_sso_client_secret: "b7186575-7279-45fd-8722-ca7c3b20616d" 
+core_vault_sunbird_sso_publickey: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkZiK8arTYv9u83Dlt6ikNzMGLXKrdSFKdoRH69cNry4py09tEeqSJwSwMJm7dO0Wy8WmSJYrEsJnwVW1JGGn0y0gDJCwIcZfnCuyyrgOD2UNZcAXQ10m5tBKRx2B69XkZWbJt2Xly4O0UE+SV8URl4e+8nOTqBZHklLjndyRnI9XzBrRsbcsyfNiLTZQEErrt0QHkV/YXrnyNGEPP5Zd0mnmijC8fgZLuMLvPMO83Sy3ykhDN7yiSNlGzpuyabRcvBNyx+hoIxpcgNo3csa3wJoR41l4zz0aO/h1xVsRWe3SslCv7bHS6MpJ3qxOigTQACwp++Yhs+Z8DVF6UZVJLwIDAQAB"
+
+######SPV-RULES##############
+igot_spvrules: SPV_ADMIN,STATE_ADMIN
+
+
+
+
+
+###########
+
+google_client_id: parichay-oAuth
+google_client_secret: 131a62cb-9d3b-4f65-a7e1-2b31021e5982
+parichay_client_id: 410c9efca9491057c6b8e1c6aca20795
+parichay_client_secret: sasfc542e121bcc192c540d9020de0d8
+parichay_code_challenge: iIjWk4TxsPNqvd7Mh2QFBTGV1n-yt1ZyUzSXOluJzYM
+parichay_code_verifier: LiSr52rNkp6O2YySQ_Oh-WYhMvsZpptDmqLG_RBmNNIFTi9B50xj4VADrEO.zyoKXJ3SsH6YtVUywAAyc.Cu2-C_bWNhJ9F.wvXrghYA~Nk.fQP.X-qLa1h_GDYsAqLm
+parichay_auth_url: https://parichay.nic.in/pnv1/oauth2/authorize
+parichay_token_url: https://parichay.nic.in/pnv1/salt/api/oauth2/token
+parichay_revoke_url: https://parichay.nic.in/pnv1/salt/api/oauth2/revoke
+parichay_user_details_url: https://parichay.nic.in/pnv1/salt/api/oauth2/userdetails
+parichay_auth_callback_url: /apis/public/v8/parichay/callback
+
+####################### 
+
+
+
+time_for_content_quality: 0
+##new variables for sb-cb-ext
+sb_es_host: 192.168.3.90,192.168.3.47,192.168.3.212
+sb_es_host_list: 192.168.3.90:9200,192.168.3.47:9200,192.168.3.212:9200
+sb_es_port: 9200
+sb_es_username: dummy     
+sb_es_password: dummy     
+send_notification: true
+scheduler_time_gap: 10080
+scheduler_run_day: 6
+scheduler_run_time: 12
+
+###########
+missionKarmayogipath: https://portal.igotkarmayogi.gov.in/
+
+
+#########
+team_email_list: amandeep.singh@fosteringlinux.com,naushad.ali@fosteringlinux.com,nalini@nic.in
+
+recipient_new_course_email: "{{ team_email_list }}"
+bulk_upload_email_notification_list: "{{ team_email_list }}"
+
+
+###
+igot_cbp_azurehost: https://portal.igotkarmayogi.gov.in
+##########
+cipher_password: "PassWord"
+
+portal_training_url: portal.igotkarmayogi.gov.in
+dakshtaname: DAKSHTA
+appleappid: "U5X787ML8J.in.nic.igot.karmayogi"
+#dopt_contactmeetlink: https://dopt.webex.com/dopt/j.php?MTID=m9710f46735e9269dba8d82c54d13af1b
+dopt_contactmeetlink: https://teams.microsoft.com/l/meetup-join/19%3ameeting_M2Y3ZDE2ZDMtMWQwYS00OWQzLWE3NDctNDRkNTdjOGI4Yzll%40thread.v2/0?context=%7b%22Tid%22%3a%2240cfb65c-9b71-435f-8bc2-bc2c69df1aca%22%2c%22Oid%22%3a%22cbd37bc9-5c33-401f-b590-9decb3c370f8%22%7d
+smtp_username: "mission.karmayogi@gov.in"
+smtp_password: "Nostra123#"
+
+########vega-router######
+app_vega_router_es_host: 192.168.3.97:9200
+app_vega_router_es_user: 
+app_vega_router_es_pwd: 
+app_vega_router_es_port: 9200
+app_vega_router_redis_host: 192.168.3.126:6379
+app_vega_router_redis_port: 6379
+
+app_vega_nlp_name: "http://vega-rasa-nlp-igot-service/webhooks/rest/webhook"
+app_vega_sandbox_nlp_name: "http://vega-rasa-nlp-sandbox-service/webhooks/rest/webhook"
+############Vega variables for action service
+vega_host_domain_name: https://igotkarmayogi.gov.in
+spv_domain_name: https://spv.igotkarmayogi.gov.in
+vega_portal_domain_name: https://portal.igotkarmayogi.gov.in
+frac_domain_name: https://frac.igotkarmayogi.gov.in
+
+es_host_list: 192.168.3.90:9200,192.168.3.47:9200,192.168.3.212:9200
+
+nine_to_five_meeting_link: https://teams.microsoft.com/l/meetup-join/19%3ameeting_M2Y3ZDE2ZDMtMWQwYS00OWQzLWE3NDctNDRkNTdjOGI4Yzll%40thread.v2/0?context=%7b%22Tid%22%3a%2240cfb65c-9b71-435f-8bc2-bc2c69df1aca%22%2c%22Oid%22%3a%22cbd37bc9-5c33-401f-b590-9decb3c370f8%22%7d
+
+#es_host_list: 192.168.3.97:9200,192.168.3.235:9200,192.168.3.76:9200
+
+vega_static_domain_name: https://portal.igotkarmayogi.gov.in
+
+##############################
+user_report_bucket: "content-store/user-report/"
+
+##############################
+postgresql_username_sunbird: sunbird
+postgresql_password_sunbird: sunbird
+
+
+cdn_content_host: https://cdn.igotkarmayogi.gov.in
+cdn_content_bucket: assets/public
+
+helpemailid: help@karmayogi.in
+
+#####Kubernetes Resources
+###UI-Proxies
+
+ui_proxies_replicacount: "6"
+ui_proxies_cpu_req: "1"
+ui_proxies_cpu_limit: "1"
+ui_proxies_mem_req: "2Gi"
+ui_proxies_mem_limit: "2Gi"
+
+##############END OF VARS ##########################################
+
+usercount_body: "{\"from\":0,\"size\":0,\"query\":{\"bool\":{\"must\":[{\"match\":{\"status\":1}}]}}}"
+orgcount_body: "{\"from\":0,\"size\":0,\"query\":{\"bool\":{\"must\":[{\"match\":{\"status\":1}}]}}}"
+live_course_api_body: "{\"from\":0,\"size\":10000,\"_source\":[\"identifier\",\"duration\"],\"query\":{\"bool\":{\"must\":[{\"match\":{\"status.raw\":\"Live\"}},{\"match\":{\"primaryCategory.raw\":\"Course\"}}]}}}"
+domaines: "http://192.168.3.90:9200"
+user_index: user_v2
+org_index: org_v2
+compositesearch: compositesearch
+
+nps_form_id: "1697521678752"
+nps_form_secondary_id: "1696404440829"
+faq_time_interval: 86400.0
+
+dp_kafka_servers_list: "192.168.3.8:9092,192.168.3.207:9092,192.168.3.36:9092"
+
+knowledge_resourse_file_upload_maxsize_in_mb: 10
+
+workflow_pagination_max_limit: 200
+workflow_pagination_default_limit: 200
+
+### pdf -generator-service resources
+pdf_generator_replicacount: "4"
+pdf_generator_cpu_req: "2"
+pdf_generator_cpu_limit: "2"
+pdf_generator_mem_req: "6Gi"
+pdf_generator_mem_limit: "6Gi"
+
+spv_org_id: 0133783095823810560
+
+ehrms_username: igotprodusr
+ehrms_password: igtpss#$23$
+ehrms_detail_url: https://e-hrms.gov.in/api/employee/preview_detail
+ehrms_auth_url: https://e-hrms.gov.in/api/Auth/login
+

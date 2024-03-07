@@ -1,0 +1,401 @@
+############## Release-1.14.0 ##################
+
+env: prod                            #Name of the environment, e.g. dev, staging or production.
+env_name: "{{ env }}"
+domain_name: portal.igotkarmayogi.gov.in                  #Domain on which the portal will be accessed. e.g. staging.{implementation-name}.org
+portal_domain_name: portal.igotkarmayogi.gov.in
+static_domain_name: igotkarmayogi.gov.in
+proto: https                        # Protocol
+
+ssh_public_key_deployer: /var/lib/jenkins/secrets/deployer_ssh_key.pub
+bootstrap_user: ansible
+bootstrap_key_path: /var/lib/jenkins/secrets/id_rsa
+
+# External service ips
+# should be accessible from core containers
+ekstep_s3_env:                          # dev or qa or prod of ekstep for plugins
+learningservice_ip: 192.168.3.87       # Load balancer IP for learning server
+dialservice_ip:                         # dial service vm ip or Load balancer ip
+searchservice_ip: 192.168.3.87                       # search service Load balancer IP
+analyticsapi_ip: 192.168.3.87                        # Analytics Service Load Balancer IP
+keycloak_url: "http://keycloak-haproxy:8080"  # Keycloak Load balancer IP; eg http://10.10.10.10
+sunbird_search_service_api_base_url: "http://search-service.{{namespace}}.svc.cluster.local:9000"
+
+# Sunbird Application name and framework name
+sunbird_default_channel:                # Organization channel name which portal will connect to
+sunbird_app_name:                       # By default app name will be sunbird
+
+# Cloud Account details
+
+sunbird_azure_public_storage_account_name: igotprod   # public storage account with content conatiner.
+sunbird_content_azure_storage_container: igotprod  # where cntent is stored, it has to be created in pubic storage account, its valuse should be same as azure_public_container variable in kp/common.yml
+sunbird_private_storage_account_name: igotprod       ## Used to store the private contents of the storage account.
+sunbird_azure_private_storage_account_name: igotprod      
+sunbird_azure_management_storage_account_name: igotprod  # used to store backups for or application DB's
+sunbird_azure_artifact_storage_account_name: igotprod    # This account need to be private to store jenkins build artifacts which will be used commonly between environments.
+artifacts_container: ''                 # Azure blob container name to save 
+
+azure_account_name:                     # Storage account name for blobs
+sunbird_swarm_manager_lb_ip:        # Swarm manager load balancer private IP. If you don't have a load swarm manager load balancer, you can use swarm manager private ip.
+
+# Blob where data analytics pushing content
+# Check same variable in DP common.yml
+dp_azure_account_name:
+
+#### Content-service ####
+environment_id: 11111111 # value as to be as Knowledgeplatfom/common.yml environment_id
+graph_passport_key: "{{core_vault_graph_passport_key}}"   
+
+# Kubernetes variables
+namespace: "{{ env }}"
+imagepullsecrets: "{{ env }}registrysecret"
+# this willl be prepended to your image
+# for example, if you give
+# dockerhub: sunbird
+# kubernetes will try to download : sunbird/player:<tag>
+# so give proper value if you're using private registry
+dockerhub: chub.cloud.gov.in/nk8s-mission-karmyogi
+
+
+kubeconfig_path: "/var/lib/jenkins/secrets/k8s.yaml"
+kibana_oauth_authenticated_email_domains_kube: '["domain.com","domain1.com"]'
+sunbird_portal_player_cdn_enabled: false
+# Ip of nginx private ingress
+# Give Ip Address with which the private ingress should be created
+# For safety reason, give ip address from bottom range of cidr
+# for ex: if cidr is 11.2.1.0/24   
+private_ingressgateway_ip: 10.194.181.122
+storage_class_name: ""
+private_ingress_custom_annotations: true
+#nginx_private_ingress_type: NodePort
+default_org_hash_id: ""
+dataexhaust_super_admin_channel: sunbird
+
+postgres:
+  db_url: "{{ groups['postgres'][0] }}"
+  db_username: analytics
+  db_name: analytics
+  db_password: "{{core_vault_dp_pgdb_password}}"
+  db_table_name: "{{env}}_consumer_channel_mapping"
+  db_port: 5432
+  db_admin_user: postgres
+  db_admin_password: "{{core_vault_postgres_password}}"
+
+
+sunbird_google_captcha_site_key: 
+google_captcha_private_key: 
+
+# Admin util keys
+#adminutil__access_keyprefix: "accessv1_key"
+#adminutil__access_keystart: 1
+#adminutil__access_keycount: 10
+
+
+######################### Optional ###################
+## Mail config
+#mail_server_host: relay.nic.in
+#sunbird_mail_server_port: 25
+#mail_server_port: 25
+mail_server_host: otprelay.nic.in
+sunbird_mail_server_port: 465
+mail_server_port: 465
+
+mail_server_username: "mission.karmayogi@gov.in"
+sunbird_mail_server_from_email: mission.karmayogi@gov.in
+sunbird_env_logo_url:                    # put public url for logo, this logo url will be used in email sending.
+
+# Certs related vars
+certs_badge_name: ""                 # Course Completion Certificate Name e.g value is "Course Completion Certificate"
+certs_badge_description: ""           # Descripton of course Completion e.g value is "Successfully completed course on Sunbird"
+certs_badge_image: ""                # Image of the certs badge e.g value is "sunbird"
+certs_badge_root_org_id: ""          # Root org ID for which the certs will be created e.g value is "0124229474659643111"
+certs_badge_issuer_name: ""          # The issuer of the certs name e.g value is "Government of karnataka"
+certs_badge_issuer_url:  ""          # Issuer organisation official URL e.g value is "https://testdomain.in"
+cert_service_cloud_storage_type: cephs3
+
+# Kibana oauth authorized domains; for accessing kibana dashboard
+kibana_oauth_authenticated_email_domains:
+  - domain1
+  - domain2
+kibana_oauth_authenticated_email_ids:
+  - email1
+  - email2
+monitor_alerts_mail_from_email: "mission.karmayogi@gov.in"
+alerts_mailing_list : igot_team@fosteringlinux.com,igot.noc@tarento.com
+monitor_alerts_slack_channel: "slack_notifiy"
+sunbird_msg_sender:                     # SMS from Address; exact 6 char
+sunbird_android_app_url: ""             # Playstore url of android app; default is subird.org
+
+# NOT MANDATORY VARS
+sunbird_public_storage_account_name: "{{sunbird_azure_public_storage_account_name}}"
+keycloak_api_management_user_email: "admin@sunbird.org"
+jenkins_url:                   # Jenkins urls to be accessed from slaves; eg "http://10.20.0.12:8080/jenkins" 
+sunbird_installation_email: "admin@sunbird.org" # fallback email for badger badge creation if the user doesn't have email address.
+#upstream_url: "https://static.karmayogiprod.nic.in/{{sunbird_azure_public_storage_account_name}}/{{sunbird_content_azure_storage_container}}" # Proxy url to get /assets/public
+upstream_url: "static.karmayogiprod.nic.in/{{sunbird_azure_public_storage_account_name}}" # Proxy url to get /assets/public
+
+############## Release-1.15.0 & 2.0.0 ##################
+sunbird_cassandra_replication_strategy: '{"class":"NetworkTopologyStrategy","datacenter1":2}' # If using cluster give this value and choose datacenter and replication factor as required '{"class":"NetworkTopologyStrategy","datacenter1":2}' if not using cluster, leave this variable commented
+
+cert_service_container_name: e-credentials                    # conatiner name for cert service to store cert templates
+cert_service_cloud_storage_type: azure                # can be updated if we are using some other blob
+
+
+### Modified for plugins - Release - 2.4.0 ###
+sunbird_ekstep_proxy_base_url: "{{proto}}://{{domain_name}}"
+#upstream_url: "http://static.karmayogi.nic.in/{{sunbird_azure_public_storage_account_name}}/{{sunbird_content_azure_storage_container}}" # Proxy url to get /assets/public
+plugin_upstream_url: "{{upstream_url}}"
+azure_plugin_storage_account_name: "{{sunbird_azure_public_storage_account_name}}"
+azure_plugin_storage_account_key: "{{sunbird_public_storage_account_key}}"
+plugin_container_name: "{{sunbird_content_azure_storage_container}}"
+
+#freshDesk dummy variable
+# freshDesk_url: ""                   # Enble only if you have proper url
+freshDesk_token: ""
+
+discussionsmw_nodebb_authorization_token: "85aebe91-88cc-4287-ace2-bbe0a84d8fa6"
+authorization_token: "85aebe91-88cc-4287-ace2-bbe0a84d8fa6"
+discussionsmw_nodebb_service_url: http://nodebb-service:4567
+discussionsmw_nodebb_api_slug: /discussions/api
+nodebb_api_slug: /discussions/api
+nodebb_service_url: http://nodebb-service:4567
+
+
+#deployment reources
+api_manager_replicacount: "5"
+api_manager_cpu_req: "1000m"
+api_manager_mem_req: "2048Mi"
+api_manager_memory_limit: "2048Mi"
+
+disussions_mw_replicacount: "8"
+disussions_mw_cpu_req: "1000m"
+disussions_mw_mem_req: "2048Mi"
+disussions_mw_mem_limit: "2048Mi"
+disussions_mw_cpu_limit: "1000m"
+
+learner_replicacount: "6"
+learner_cpu_req: "2000m"
+learner_mem_req: "2048Mi"
+learner_cpu_limit: "2000m"
+learner_mem_limit: "2048Mi"
+learner_java_mem_limit: "-Xmx1g"
+
+nodebb_replicacount: "15"
+nodebb_cpu_req: "1000m"
+nodebb_mem_req: "2048Mi"
+#learner_cpu_limit: "2000m"
+nodebb_mem_limit: "2048Mi"
+#learner_java_mem_limit: "-Xmx1g"
+
+proxy_cpu_req: "1000m"
+proxy_mem_req: "1024Mi"
+
+content_replicacount: "6"
+content_cpu_req: "2000m"
+content_mem_req: "3072Mi"
+content_cpu_limit: "2000m"
+content_mem_limit: "3072Mi"
+content_java_mem_limit: "-Xmx1g"
+
+taxonomy_replicacount: "6"
+taxonomy_cpu_req: "2000m"
+taxonomy_mem_req: "2048Mi"
+taxonomy_cpu_limit: "2000m"
+taxonomy_mem_limit: "2048Mi"
+taxonomy_java_mem_limit: "-Xmx1g"
+
+search_replicacount: "6"
+search_cpu_req: "2000m"
+search_mem_req: "2048Mi"
+search_cpu_limit: "2000m"
+search_mem_limit: "2048Mi"
+search_java_mem_limit: "-Xmx1g"
+
+
+lms_cpu_limit: "2000m"
+lms_cpu_req: "2000m"
+lms_replicacount: "6"
+lms_mem_req: "2048Mi"
+lms_mem_limit: "2048Mi"
+lms_java_mem_limit: "-Xmx1g"
+
+telemetry_cpu_req: "2000m"
+telemetry_mem_req: "2048Mi"
+telemetry_mem_limit: "2048Mi"
+telemetry_cpu_limit: "2000m"
+telemetry_replicacount: "5"
+
+
+assessment_replicacount: "3"
+assessment_cpu_req: "200m"
+assessment_mem_req: "500m"
+assessment_cpu_limit: "500m"
+assessment_mem_limit: "1024Mi"
+
+analytics_replicacount: "4"
+analytics_cpu_req: "1000m"
+analytics_mem_req: "2048Mi"
+analytics_cpu_limit: "1000m"
+analytics_mem_limit: "2048Mi"
+analytics_max_heap_limit: "-Xmx1g"
+
+notification_replicacount: "2"
+notification_cpu_req: "200m"
+notification_mem_req: "500Mi"
+notification_cpu_limit: "1000m"
+notification_mem_limit: "2048Mi"
+
+cert_replicacount: "2"
+certregistry_replicacount: "2"
+
+small_rate_limit_per_hour: 100000000
+medium_rate_limit_per_hour: 5000000000
+x_medium_rate_limit_per_hour: 5000000000
+large_rate_limit_per_hour: 10000000000
+x2_large_rate_limit_per_hour: 15000000000
+x_large_rate_limit_per_hour: 30000000000
+
+premium_consumer_small_rate_limit_per_hour: 1000000000
+premium_consumer_medium_rate_limit_per_hour: 10000000000
+premium_consumer_large_rate_limit_per_hour: 100000000000
+
+cephs3_storage_container: igotprod
+#cephs3_storage_endpoint: https://staas-bbs1.cloud.gov.in
+#cephs3_storage_endpoint: http://10.194.177.79
+cephs3_storage_endpoint: https://static.karmayogiprod.nic.in
+cephs3_dp_storage_container: igotlogs
+
+metadata2_redis_host: 192.168.3.126
+redis_host: 192.168.3.82
+
+content_port: 6379
+device_port: 6379
+user_port: 6379
+dialcode_port: 6379
+
+sunbird_telemetry_kafka_topic: "{{env}}.telemetry.ingestion"
+kafka_ingestion_urls: 192.168.3.112:9092,192.168.3.41:9092,192.168.3.62:9092
+kafka_urls: 192.168.3.112:9092,192.168.3.41:9092,192.168.3.62:9092
+
+###
+nodebbvmip: 10.10.10.10
+
+######### Nginx Private conf 4.4.1###
+grafana_nginx_private_htpasswd: ""
+grafana_admin_user_http_header: "X-privateSecretHeader-Auth"
+#nginx_private_ingress_annotations: "service.beta"
+#kubernetes.io/azure-load-balancer-internal: "true"
+nginx_private_ingress_annotations: 
+  service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+
+grafana_login_whitelisted_emails: |-
+   reema.pal@fostinglinux.com
+
+############
+## AdminUtil Vars ##
+adminutil_portal_anonymous_keyprefix: "portal_anonymous_key"
+adminutil_portal_anonymous_keystart: 1
+adminutil_portal_anonymous_keycount: 10
+adminutil_portal_loggedin_keyprefix: "portal_loggedin_key"
+adminutil_portal_loggedin_keystart: 1
+adminutil_portal_loggedin_keycount: 10
+
+
+### lms
+
+user_enrolments_response_cache_enable: true
+
+### Content
+
+hierarchyUpdate.allow.resource.at.root.level: true
+
+
+###kong-api related variables####
+integration_app_prefix: /igot
+ml_core_service_url: http://dummy-url
+users_service_prefix: /igot
+solutions_service_prefix: /igot
+entities_service_prefix: /igot
+ml_reports_service_url: http://dummy-url
+observations_service_prefix: /igot
+ml_project_service_url: http://dummy-url
+userProjects_service_prefix: /igot
+reports_service_prefix: /igot
+
+#######Opa #
+analytics_opa_enabled: false
+certregistry_opa_enabled: false
+content_opa_enabled: false
+knowledgemw_opa_enabled: false
+learner_opa_enabled: false
+lms_opa_enabled: false
+
+#########release-4.5.0, 4.6.0, 4.7.0, 4.8.0####
+enable_tenant_config: tn
+adminutil_embed_role: true
+kong_desktop_device_consumer_names_for_opa: '["desktop_devicev2", "desktop_device"]'
+reportsListVersion: v2
+
+# Consumer groups with ACL mapping
+
+userAccess:
+  - userAccess
+  
+ankit_sonu_dot_acls:
+  - dataAccess
+
+external_report_group:
+  - storageReportDownload
+  - externalCertificateAccess
+
+# Consumers to be on-boarded with consumer group
+kong_consumers:
+  - username: adminutil_learner_api_key
+    groups: "{{ userAccess }}"
+    state: present
+  - username: negd_dot_key
+    groups: "{{ankit_sonu_dot_acls}}"
+    state: present
+  - username: niti_states
+    groups: "{{ external_report_group }}"
+    state: present
+
+#############updated new variables for storage inserted for content service config map
+
+igot_public_cloud_storage_type: "cephs3"
+igot_cephs3_storage_key: "UZTE1L0EDHFGX1EW8NEQ"
+igot_cephs3_storage_secret: "WFuuuqtc3lYKLzuxKKJVqgS1IvAOEnOqbquT3PTC"
+igot_cephs3_storage_endpoint: "https://static.karmayogiprod.nic.in"
+igot_cephs3_storage_container: "igotprod"
+
+
+###keycloak deployment new variables
+
+nic_sms_gateway_provider_username: "igotkmy.otp"
+nic_sms_gateway_provider_password: "C6@wH1&eU0"
+dlt_entity_id: "1301157441282416053"
+
+####################New vars for 4.8.0 upgrade   
+ 
+###certification image url###  
+sunbird_public_azure_storage_container: igotprod
+upstream_certimgurl: public  
+enable_tenant_config: tn  
+## AdminUtil Vars ##   
+adminutil__portal_anonymous_keyprefix: "portal_anonymous_key"  
+adminutil__portal_anonymous_keystart: 1 
+adminutil__portal_anonymous_keycount: 10 
+adminutil__portal_loggedin_keyprefix: "portal_loggedin_key" 
+adminutil__portal_loggedin_keystart: 1  
+adminutil__portal_loggedin_keycount: 10  
+###Storage accout-name 
+sunbird_management_storage_account_name: igotprod
+
+user_enrolments_response_cache_ttl: 120
+mail_tls_protocol: TLSv1.2
+
+faq_time_interval: 86400.0
+
+nfs_db_backup_path: "/db_backup"
+app_es_snapshot_host: "{{ groups['es-1'][0] }}"
+app_snapshot_base_path: "{{ nfs_db_backup_path }}/elasticsearch-backup/es-composite-search/"
